@@ -1,8 +1,9 @@
 %YAML 1.2
 ---
 # http://www.sublimetext.com/docs/3/syntax.html
-name: "DokuWiki"
+name: DokuWiki
 first_line_match: (^\={6}.*\={6}) # The first line of DukuWiki page should start with H1 heading, which is the title
+file_extensions: [dokuwiki]
 scope: text.dokuwiki
 uuid: c5fd5cfa-4839-40e5-87f6-fc7ef1d2f3cc
 
@@ -10,23 +11,63 @@ contexts:
   main:
     # Page Title    
     - match: '^======'
-      scope: acejump.label.blue
+      scope: markup.heading
       push:
-        - meta_scope: acejump.label.blue
-        - match: '======'
+        - meta_scope: markup.heading
+        - match: '======\n'
           pop: true
         - match: '.'
-          scope: acejump.label.blue
+          scope: markup.heading
 
     # Headings    
     - match: '^=+'
-      scope: acejump.label.orange
+      scope: markup.heading
       push:
-        - meta_scope: acejump.label.orange
-        - match: '=+'
+        - meta_scope: markup.heading
+        - match: '=+\n'
           pop: true
         - match: '.'
-          scope: acejump.label.orange
+          scope: markup.heading
+
+    # Links
+    - match: '\[\['
+      scope: markup.underline.link
+      push:
+        - meta_scope: markup.underline.link
+        - match: '\]\]'
+          pop: true
+        - match: '.'
+          scope: markup.underline.link
+
+    # Footnotes
+    - match: '\(\('
+      scope: meta.tag
+      push:
+        - meta_scope: meta.tag
+        - match: '\)\)'
+          pop: true
+        - match: '.'
+          scope: markup.other
+
+    # Quotes
+    - match: '^\>+'
+      scope: meta.tag
+      push:
+        - meta_scope: meta.tag
+        - match: '\n'
+          pop: true
+        - match: '.'
+          scope: markup.quote
+
+    # Expandable list
+    - match: '^\+{4}.*\|'
+      scope: meta.tag
+      push:
+        - meta_scope: meta.tag
+        - match: '^\+{4}\n'
+          pop: true
+        - match: '.'
+          scope: markup.underline.link
 
     # Formatted Bold text    
     - match: '\*\*'
@@ -40,9 +81,9 @@ contexts:
 
     # Formatted Italic text    
     - match: (?<!https:|http:)\/\/  # This handles cases when there are urls, which breaks the highlighting
-      scope: meta.tag
+      scope: markup.italic
       push:
-        - meta_scope: meta.tag
+        - meta_scope: markup.italic
         - match: '\/\/'
           pop: true
         - match: '.'
@@ -101,21 +142,21 @@ contexts:
           scope: constant.character
 
     # Bulleted list
-    - match: (^\s+\*\s)
+    - match: (^\*\s)
       push:
-        - meta_scope: meta.tag
+        - meta_scope: markup.list.unnumbered
         - match: '\n'
-          scope: meta.tag
+          scope: markup.list.unnumbered
           pop: true
         - match: '.'
-          scope: markup.inserted
+          scope: markup.list.unnumbered
 
     # Numbered list
-    - match: (^\s+\-\s)
+    - match: (^\-\s)
       push:
-        - meta_scope: meta.tag
+        - meta_scope: markup.list.numbered
         - match: '\n'
-          scope: meta.tag
+          scope: markup.list.numbered
           pop: true
         - match: '.'
           scope: markup.inserted
@@ -143,7 +184,3 @@ contexts:
             - include: main
         - match: '.'
           scope: string.quoted.single.html
-
-
-
-
