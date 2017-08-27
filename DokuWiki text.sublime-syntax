@@ -9,7 +9,7 @@ uuid: c5fd5cfa-4839-40e5-87f6-fc7ef1d2f3cc
 
 contexts:
   main:
-    # Page Title    
+    # Page Title
     - match: '^======'
       scope: markup.heading
       push:
@@ -19,7 +19,7 @@ contexts:
         - match: '.'
           scope: markup.heading
 
-    # Headings    
+    # Headings
     - match: '^=+'
       scope: markup.heading
       push:
@@ -31,9 +31,9 @@ contexts:
 
     # Links
     - match: '\[\['
-      scope: markup.underline.link
+      scope: meta.tag
       push:
-        - meta_scope: markup.underline.link
+        - meta_scope: meta.tag
         - match: '\]\]'
           pop: true
         - match: '.'
@@ -50,13 +50,13 @@ contexts:
           scope: markup.other
 
     # Quotes
-    - match: '^\>+'
+    - match: '^>+'
       scope: meta.tag
       push:
         - meta_scope: meta.tag
         - match: '\n'
           pop: true
-        - match: '.'
+        - match: '.*'
           scope: markup.quote
 
     # Expandable list
@@ -69,7 +69,7 @@ contexts:
         - match: '.'
           scope: markup.underline.link
 
-    # Formatted Bold text    
+    # Formatted Bold text
     - match: '\*\*'
       scope: meta.tag
       push:
@@ -79,7 +79,7 @@ contexts:
         - match: '.'
           scope: markup.bold
 
-    # Formatted Italic text    
+    # Formatted Italic text
     - match: (?<!https:|http:)\/\/  # This handles cases when there are urls, which breaks the highlighting
       scope: markup.italic
       push:
@@ -89,7 +89,7 @@ contexts:
         - match: '.'
           scope: markup.italic
 
-    # Formatted Underlined text    
+    # Formatted Underlined text
     - match: '\_\_'
       scope: meta.tag
       push:
@@ -142,24 +142,64 @@ contexts:
           scope: constant.character
 
     # Bulleted list
-    - match: (^\*\s)
+    - match: (\s{2,}\*\s)
       push:
-        - meta_scope: markup.list.unnumbered
+        - meta_scope: meta.tag
         - match: '\n'
-          scope: markup.list.unnumbered
+          scope: meta.tag
           pop: true
         - match: '.'
           scope: markup.list.unnumbered
 
     # Numbered list
-    - match: (^\-\s)
+    - match: (\s{2,}\-\s)
       push:
-        - meta_scope: markup.list.numbered
+        - meta_scope: meta.tag
         - match: '\n'
-          scope: markup.list.numbered
+          scope: meta.tag
           pop: true
         - match: '.'
-          scope: markup.inserted
+          scope: markup.list.numbered
+
+    # Horizontal line
+    - match: (\-{4,})
+      push:
+        - meta_scope: markup.heading
+        - match: '\n'
+          scope: markup.heading
+          pop: true
+        - match: '.'
+          scope: markup.heading
+
+    # Signiture
+    - match: (\-{3})
+      push:
+        - meta_scope: meta.tag
+        - match: '\n'
+          scope: meta.tag
+          pop: true
+        - match: '.'
+          scope: markup.other
+
+    # table - header
+    - match: (\^)
+      push:
+        - meta_scope: meta.tag
+        - match: '\^\n'
+          scope: meta.tag
+          pop: true
+        - match: '.'
+          scope: markup.other
+
+    # table - content
+    - match: (\|)
+      push:
+        - meta_scope: meta.tag
+        - match: '\|\n'
+          scope: meta.tag
+          pop: true
+        - match: '.'
+          scope: markup.other
 
     # HTML Code tags
     - match: '(?:^\s+)?(<)([a-zA-Z0-9:]+)\b(?![^>]*/>)'
